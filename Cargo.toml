@@ -1,0 +1,12 @@
+[package]
+name = "brainstorm"
+version = "0.1.0"
+authors = ["Devon Hollowood <devonhollowood@gmail.com>"]
+
+[lib]
+name = "brainstorm"
+path = "src/brainstorm/lib.rs"
+
+[[bin]]
+name = "brainstorm"
+path = "src/bin/main.rs"
