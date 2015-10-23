@@ -35,7 +35,7 @@ impl Position {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum TokenType {
     Incr,
     Decr,
@@ -45,14 +45,13 @@ pub enum TokenType {
     Write,
     LoopOpen,
     LoopClose,
-    Comment(String),
 }
 
 pub trait Tokenizeable: Iterator {
     fn tokenize(self) -> Tokens<Self> where
         Self: Iterator<Item=char> + Sized,
     {
-        Tokens{iter: self.peekable(), position: Position{line: 0, column: 0}}
+        Tokens{underlying: self, position: Position{line: 0, column: 0}}
     }
 }
 
@@ -65,48 +64,37 @@ pub fn lex(contents: &str) -> Vec<Token> {
 #[must_use = "iterator adaptors are lazy and do nothing unless consumed"]
 #[derive(Clone)]
 pub struct Tokens<I: Iterator<Item=char> + Sized> {
-    iter: Peekable<I>,
+    underlying: I,
     position: Position,
 }
 
 impl<I: Iterator<Item=char> + Sized> Iterator for Tokens<I> {
     type Item = Token;
     fn next(&mut self) -> Option<Token> {
-        let position = self.position; //save current position
-        let mut token_type = match self.iter.next() {
-            None => return None,
-            Some('+') => TokenType::Incr,
-            Some('-') => TokenType::Decr,
-            Some('<') => TokenType::Left,
-            Some('>') => TokenType::Right,
-            Some(',') => TokenType::Read,
-            Some('.') => TokenType::Write,
-            Some('[') => TokenType::LoopOpen,
-            Some(']') => TokenType::LoopClose,
-            Some(c) => TokenType::Comment(format!("{}", c)),
-        };
-        self.position.column += 1;
-        if let TokenType::Comment(mut s) = token_type {
-            while let Some(&c) = self.iter.peek() {
-                match c {
-                    '+' | '-' | '<' | '>' | ',' | '.' | '[' | ']' => break,
-                    '\n' => {
-                        self.position.line += 1;
-                        self.position.column = 0;
-                        break;
-                    },
-                    _ => {
-                        s.push(c);
-                        self.iter.next().unwrap();
-                    }
+        loop {
+            let mut token_type = match self.underlying.next() {
+                None => return None,
+                Some('+') => TokenType::Incr,
+                Some('-') => TokenType::Decr,
+                Some('<') => TokenType::Left,
+                Some('>') => TokenType::Right,
+                Some(',') => TokenType::Read,
+                Some('.') => TokenType::Write,
+                Some('[') => TokenType::LoopOpen,
+                Some(']') => TokenType::LoopClose,
+                Some('\n') => {
+                    self.position.line += 1;
+                    self.position.column = 0;
+                    continue;
+                },
+                Some(_) => {
+                    self.position.column += 1;
+                    continue;
                 }
-            }
-            s = s.trim().to_owned();
-            if s.is_empty() {
-                return self.next();
-            }
-            token_type = TokenType::Comment(s);
+            };
+            let position = self.position; //save position
+            self.position.column += 1; //increment position
+            return Some(Token{token_type: token_type, position: position});
         }
-        Some(Token {token_type: token_type, position: position})
     }
 }
