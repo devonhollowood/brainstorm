@@ -1,5 +1,3 @@
-use std::iter::Peekable;
-
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Token {
     token_type: TokenType,
@@ -72,7 +70,7 @@ impl<I: Iterator<Item=char> + Sized> Iterator for Tokens<I> {
     type Item = Token;
     fn next(&mut self) -> Option<Token> {
         loop {
-            let mut token_type = match self.underlying.next() {
+            let token_type = match self.underlying.next() {
                 None => return None,
                 Some('+') => TokenType::Incr,
                 Some('-') => TokenType::Decr,
