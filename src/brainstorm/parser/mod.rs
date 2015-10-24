@@ -1,5 +1,6 @@
 use super::lexer::{Token, TokenType, Position};
 
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Instruction {
     Incr,
     Decr,
@@ -10,6 +11,7 @@ pub enum Instruction {
     Loop(Vec<Instruction>)
 }
 
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum ParseError {
     UnmatchedLoopOpen(Position),
     UnmatchedLoopClose(Position),
