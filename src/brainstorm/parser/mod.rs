@@ -46,9 +46,7 @@ pub fn parse(tokens: Vec<Token>) -> Result<Vec<Instruction>, Vec<ParseError>> {
             },
         }
     }
-    while let Some((_, position)) = loop_stack.pop() {
-        errors.push(ParseError::UnmatchedLoopOpen(position));
-    }
+    errors.extend(loop_stack.iter().map(|&(_, pos)| ParseError::UnmatchedLoopOpen(pos)));
     if errors.is_empty() {
         Ok(instructions)
     }
