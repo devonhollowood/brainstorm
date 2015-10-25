@@ -55,5 +55,5 @@ fn newlines() {
              TokenType::Write
             ]
     );
-    assert_eq!(positions,vec![(1, 4), (1, 11), (2, 4), (4, 0), (4, 2)]);
+    assert_eq!(positions, vec![(1, 4), (1, 11), (2, 4), (4, 0), (4, 2)]);
 }
