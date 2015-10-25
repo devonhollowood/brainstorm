@@ -5,6 +5,10 @@ pub struct Token {
 }
 
 impl Token {
+    pub fn new(token_type: TokenType, position: Position) -> Token {
+        Token{token_type: token_type, position: position}
+    }
+
     pub fn token_type(&self) -> TokenType {
         self.token_type.clone()
     }
@@ -20,10 +24,11 @@ pub struct Position {
     column: ColumnNumber
 }
 
-pub type LineNumber = usize;
-pub type ColumnNumber = usize;
-
 impl Position {
+    pub fn new(line: LineNumber, column: ColumnNumber) -> Position {
+        Position {line: line, column: column}
+    }
+
     pub fn line(&self) -> LineNumber {
         self.line
     }
@@ -32,6 +37,9 @@ impl Position {
         self.column
     }
 }
+
+pub type LineNumber = usize;
+pub type ColumnNumber = usize;
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum TokenType {
